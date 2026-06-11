@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreeDoc India • Free Consultations for Patients</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Poppins:wght@500;600&amp;display=swap');
+        body { font-family: 'Inter', system_ui, sans-serif; }
+        .heading-font { font-family: 'Poppins', system_ui, sans-serif; font-weight: 600; }
+        .app-container { max-width: 1280px; margin: 0 auto; }
+        .card { transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s; }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
+        .section-header { font-size: 1.35rem; font-weight: 600; color: #134e4b; }
+        .status-locked { background-color: #fef3c7; color: #92400e; }
+        .status-completed { background-color: #d1fae5; color: #065f46; }
+        .status-cancelled { background-color: #fee2e2; color: #991b1b; }
+        .modal { animation: modalPop 0.2s ease forwards; }
+    </style>
+</head>
+<body class="bg-slate-50">
+    <nav class="bg-white border-b sticky top-0 z-50">
+        <div class="app-container px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-x-3">
+                <div class="flex items-center gap-x-2">
+                    <div class="w-9 h-9 bg-teal-800 rounded-2xl flex items-center justify-center text-white">
+                        <i class="fa-solid fa-stethoscope text-2xl"></i>
+                    </div>
+                    <div>
+                        <span class="text-3xl font-bold tracking-tighter text-teal-900 heading-font">FreeDoc</span>
+                        <span class="text-teal-600 text-sm font-medium">India</span>
+                    </div>
+                </div>
+                <div class="px-3 py-1 bg-teal-100 text-teal-700 text-xs font-semibold rounded-full flex items-center gap-x-1">
+                    <div class="w-2 h-2 bg-teal-500 rounded-full animate-pulse"></div>
+                    <span>1 Free Consultation / Month</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-x-2" id="nav-user-info"></div>
+        </div>
+    </nav>
+
+    <div class="app-container px-4 py-6">
+        <div id="auth-section">
+            <div class="max-w-md mx-auto bg-white rounded-3xl shadow p-8 border">
+                <div class="text-center mb-8">
+                    <h1 class="text-3xl font-semibold text-slate-800">Welcome to FreeDoc</h1>
+                    <p class="text-slate-500 mt-1">Free consultations for patients. Flexible slots for doctors.</p>
+                </div>
+                <div class="space-y-6">
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <i class="fa-solid fa-user text-teal-600"></i>
+                            <span class="font-semibold text-slate-700">Patient</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <input type="text" id="patient-phone" value="9876543210" class="flex-1 border px-4 py-2.5 rounded-2xl text-sm focus:outline-none focus:border-teal-600" placeholder="Phone number">
+                            <button onclick="loginAsPatient()" class="px-6 bg-teal-800 hover:bg-teal-900 transition-colors text-white font-semibold rounded-2xl text-sm">Login</button>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-1 ml-1">Demo: 9876543210 (Rahul), 9876543211, 9876543212</p>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <i class="fa-solid fa-user-md text-emerald-600"></i>
+                            <span class="font-semibold text-slate-700">Doctor</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <input type="text" id="doctor-phone" value="9123456780" class="flex-1 border px-4 py-2.5 rounded-2xl text-sm focus:outline-none focus:border-emerald-600" placeholder="Phone number">
+                            <button onclick="loginAsDoctor()" class="px-6 bg-emerald-700 hover:bg-emerald-800 transition-colors text-white font-semibold rounded-2xl text-sm">Login</button>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-1 ml-1">Demo: 9123456780 (Dr. Ananya), 9123456781, etc.</p>
+                    </div>
+                    <div class="border-t pt-4">
+                        <button onclick="showRegisterModal()" class="w-full text-sm flex items-center justify-center gap-x-2 border py-2.5 rounded-2xl hover:bg-slate-50 text-slate-600">
+                            <i class="fa-solid fa-user-plus"></i>
+                            <span>New user? Register here</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="main-app" class="hidden">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 id="welcome-text" class="text-2xl font-semibold text-slate-800"></h2>
+                    <p id="user-role-city" class="text-sm text-slate-500"></p>
+                </div>
+                <div class="flex items-center gap-x-3">
+                    <div class="bg-white border rounded-2xl px-4 py-1 flex items-center gap-x-3 shadow-sm">
+                        <div>
+                            <div class="text-[10px] text-slate-400">WALLET</div>
+                            <span id="wallet-balance" class="font-bold text-lg text-teal-800">₹1,500</span>
+                        </div>
+                        <button onclick="topUpWallet()" class="px-3 py-1 text-xs font-medium bg-teal-100 hover:bg-teal-200 text-teal-700 rounded-xl transition-colors">+ Top-up</button>
+                    </div>
+                    <button onclick="logout()" class="text-xs px-4 py-2 border rounded-2xl hover:bg-red-50 hover:text-red-600 flex items-center gap-x-2 text-slate-500">
+                        <i class="fa-solid fa-sign-out-alt"></i>
+                        <span class="hidden md:inline">Logout</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex border-b mb-6">
+                <div id="tab-patient" onclick="switchTab('patient')" class="tab-button px-5 py-2.5 font-medium cursor-pointer flex-1 text-center border-b-2 border-transparent">Patient</div>
+                <div id="tab-doctor" onclick="switchTab('doctor')" class="tab-button px-5 py-2.5 font-medium cursor-pointer flex-1 text-center border-b-2 border-transparent hidden">Doctor</div>
+            </div>
+
+            <div id="patient-view">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <div class="lg:col-span-7 bg-white rounded-3xl shadow p-6 border">
+                        <div class="flex items-center justify-between mb-5">
+                            <div>
+                                <h3 class="section-header">Book Free Consultation</h3>
+                                <p class="text-xs text-teal-600">1 free per month • ₹100 lock (refunded after visit)</p>
+                            </div>
+                            <div id="monthly-status" class="px-3 py-1 text-xs rounded-full font-semibold"></div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-500 mb-1.5">YOUR CITY</label>
+                                <select id="book-city" class="w-full border px-3 py-2.5 rounded-2xl text-sm"></select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-500 mb-1.5">REQUIRED DEPARTMENT</label>
+                                <select id="book-department" class="w-full border px-3 py-2.5 rounded-2xl text-sm"></select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-500 mb-1.5">PREFERRED DATE</label>
+                                <input type="date" id="book-date" class="w-full border px-3 py-2.5 rounded-2xl text-sm" min="2026-06-11">
+                            </div>
+                        </div>
+                        <button onclick="findRandomDoctor()" class="mt-5 w-full bg-teal-800 hover:bg-teal-900 transition text-white font-semibold py-3 rounded-2xl flex items-center justify-center gap-x-2 text-sm">
+                            <i class="fa-solid fa-random"></i>
+                            <span>FIND RANDOM AVAILABLE DOCTOR</span>
+                        </button>
+                        <div class="text-[10px] text-center text-slate-400 mt-2">Doctor will be chosen randomly from those offering free slots that day</div>
+                    </div>
+                    <div class="lg:col-span-5 bg-white rounded-3xl shadow p-6 border flex flex-col">
+                        <h3 class="font-semibold text-slate-700 mb-3">How it works</h3>
+                        <div class="space-y-3 text-sm flex-1">
+                            <div class="flex gap-3"><div class="font-mono text-xs bg-teal-100 text-teal-700 px-2 py-0.5 rounded h-fit mt-0.5">1</div><div class="text-slate-600">Choose city, department &amp; preferred date</div></div>
+                            <div class="flex gap-3"><div class="font-mono text-xs bg-teal-100 text-teal-700 px-2 py-0.5 rounded h-fit mt-0.5">2</div><div class="text-slate-600">We randomly assign you an available doctor</div></div>
+                            <div class="flex gap-3"><div class="font-mono text-xs bg-teal-100 text-teal-700 px-2 py-0.5 rounded h-fit mt-0.5">3</div><div class="text-slate-600">Pay ₹100 to lock the slot (refunded on completion)</div></div>
+                            <div class="flex gap-3"><div class="font-mono text-xs bg-teal-100 text-teal-700 px-2 py-0.5 rounded h-fit mt-0.5">4</div><div class="text-slate-600">Consult (video or in-person). Doctor marks complete → you get refund</div></div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-12">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="section-header">My Bookings</h3>
+                            <button onclick="loadPatientBookings()" class="text-xs flex items-center gap-x-1 text-teal-700 hover:text-teal-800"><i class="fa-solid fa-sync-alt"></i> <span class="hidden sm:inline">Refresh</span></button>
+                        </div>
+                        <div id="patient-bookings" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="doctor-view" class="hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <div class="lg:col-span-5 bg-white rounded-3xl p-6 shadow border">
+                        <h3 class="section-header mb-4">Your Free Consultation Settings</h3>
+                        <div class="space-y-5">
+                            <div>
+                                <label class="text-xs font-medium text-slate-500">DEPARTMENT</label>
+                                <select id="doc-department" class="w-full border px-3 py-2.5 text-sm rounded-2xl mt-1"></select>
+                            </div>
+                            <div>
+                                <label class="text-xs font-medium text-slate-500">FREE DAYS (select days you offer free slots)</label>
+                                <div class="flex flex-wrap gap-2 mt-2" id="free-days-checkboxes"></div>
+                            </div>
+                            <div>
+                                <label class="text-xs font-medium text-slate-500">MAX PATIENTS PER FREE DAY</label>
+                                <div class="flex items-center gap-3 mt-1">
+                                    <input type="number" id="max-patients" value="5" min="1" max="15" class="border w-20 px-3 py-2 rounded-2xl text-sm">
+                                    <span class="text-xs text-slate-400">patients</span>
+                                </div>
+                            </div>
+                            <button onclick="saveDoctorProfile()" class="w-full bg-emerald-700 hover:bg-emerald-800 transition text-white py-3 text-sm font-semibold rounded-2xl">SAVE SETTINGS</button>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-7 bg-white rounded-3xl p-6 shadow border">
+                        <div class="flex justify-between mb-4">
+                            <h3 class="section-header">Your Free Slots Overview</h3>
+                            <button onclick="loadDoctorBookings()" class="text-xs px-3 py-1 border rounded-2xl flex items-center gap-1 hover:bg-slate-50"><i class="fa-solid fa-sync"></i> <span>Refresh</span></button>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                            <div class="bg-emerald-50 p-3 rounded-2xl"><div class="text-xs text-emerald-700">FREE DAYS</div><div id="stats-free-days" class="font-bold text-2xl text-emerald-800">—</div></div>
+                            <div class="bg-emerald-50 p-3 rounded-2xl"><div class="text-xs text-emerald-700">PATIENTS / DAY</div><div id="stats-max-patients" class="font-bold text-2xl text-emerald-800">—</div></div>
+                            <div class="bg-amber-50 p-3 rounded-2xl"><div class="text-xs text-amber-700">UPCOMING</div><div id="stats-upcoming" class="font-bold text-2xl text-amber-800">—</div></div>
+                            <div class="bg-teal-50 p-3 rounded-2xl"><div class="text-xs text-teal-700">COMPLETED THIS MONTH</div><div id="stats-completed" class="font-bold text-2xl text-teal-800">—</div></div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-12">
+                        <h3 class="section-header mb-3">Patient Bookings</h3>
+                        <div id="doctor-bookings" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Doctor Modal -->
+    <div id="doctor-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-3xl max-w-md w-full mx-3 p-6 modal">
+            <div class="flex justify-between items-start mb-4">
+                <div><h3 class="font-semibold text-xl">Doctor Found!</h3><div id="random-doctor-info" class="text-sm text-slate-500"></div></div>
+                <button onclick="closeDoctorModal()" class="text-slate-400 hover:text-slate-600 text-xl leading-none">×</button>
+            </div>
+            <div class="bg-slate-50 rounded-2xl p-4 mb-5" id="modal-doctor-card"></div>
+            <div class="mb-4">
+                <label class="text-xs font-medium text-slate-500 block mb-1.5">CONSULTATION TYPE</label>
+                <div class="flex gap-2">
+                    <label class="flex-1 border rounded-2xl p-3 flex items-center cursor-pointer"><input type="radio" name="consult-type" value="video" checked class="mr-2"> <div><span class="font-semibold text-sm">Video Call</span><div class="text-xs text-slate-500">Telemedicine</div></div></label>
+                    <label class="flex-1 border rounded-2xl p-3 flex items-center cursor-pointer"><input type="radio" name="consult-type" value="inperson" class="mr-2"> <div><span class="font-semibold text-sm">In-Person</span><div class="text-xs text-slate-500">At clinic</div></div></label>
+                </div>
+            </div>
+            <div class="text-xs text-center mb-4 bg-yellow-50 p-3 rounded-2xl border border-yellow-100"><strong>₹100</strong> will be deducted to lock the slot.<br>Refunded automatically when doctor marks the consultation as completed.</div>
+            <div class="flex gap-3">
+                <button onclick="closeDoctorModal()" class="flex-1 py-3 text-sm font-medium border rounded-2xl hover:bg-slate-50">Cancel</button>
+                <button onclick="confirmBooking()" class="flex-1 py-3 bg-teal-800 hover:bg-teal-900 text-sm font-semibold text-white rounded-2xl">LOCK SLOT • PAY ₹100</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null, currentRole = null, selectedDoctorForBooking = null, currentBookingData = null;
+        const API_BASE = '';
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-5 right-5 px-5 py-3 rounded-2xl shadow-lg text-sm flex items-center gap-2 z-[999] ${type === 'success' ? 'bg-teal-800 text-white' : 'bg-red-600 text-white'}`;
+            toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> <span>${message}</span>`;
+            document.body.appendChild(toast);
+            setTimeout(() => { toast.style.transition = 'all 0.3s'; toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 2800);
+        }
+
+        async function apiCall(endpoint, method = 'GET', body = null) {
+            const options = { method, headers: { 'Content-Type': 'application/json' } };
+            if (body) options.body = JSON.stringify(body);
+            const res = await fetch(`${API_BASE}/api${endpoint}`, options);
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Request failed');
+            return data;
+        }
+
+        async function loadCitiesAndDepartments() {
+            const cities = await apiCall('/cities');
+            const depts = await apiCall('/departments');
+            const citySelect = document.getElementById('book-city');
+            if (citySelect) {
+                citySelect.innerHTML = '<option value="">Select city</option>';
+                cities.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.textContent = c; citySelect.appendChild(opt); });
+            }
+            const deptSelect = document.getElementById('book-department');
+            if (deptSelect) {
+                deptSelect.innerHTML = '<option value="">Select department</option>';
+                depts.forEach(d => { const opt = document.createElement('option'); opt.value = d; opt.textContent = d; deptSelect.appendChild(opt); });
+            }
+            const docDept = document.getElementById('doc-department');
+            if (docDept) { docDept.innerHTML = ''; depts.forEach(d => { const opt = document.createElement('option'); opt.value = d; opt.textContent = d; docDept.appendChild(opt); }); }
+        }
+
+        function setupFreeDaysCheckboxes(selectedDays = []) {
+            const container = document.getElementById('free-days-checkboxes');
+            container.innerHTML = '';
+            const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+            days.forEach(day => {
+                const div = document.createElement('label');
+                div.className = `px-4 py-1.5 rounded-2xl text-sm cursor-pointer border flex items-center gap-2 ${selectedDays.includes(day) ? 'bg-emerald-100 border-emerald-300' : 'border-slate-200 hover:bg-slate-50'}`;
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.checked = selectedDays.includes(day);
+                cb.className = 'accent-emerald-700';
+                cb.onchange = () => { if (cb.checked) { div.classList.add('bg-emerald-100', 'border-emerald-300'); div.classList.remove('border-slate-200'); } else { div.classList.remove('bg-emerald-100', 'border-emerald-300'); div.classList.add('border-slate-200'); } };
+                const span = document.createElement('span');
+                span.textContent = day.slice(0, 3);
+                span.className = 'text-xs font-medium text-slate-600';
+                div.appendChild(cb); div.appendChild(span);
+                container.appendChild(div);
+            });
+        }
+
+        function getSelectedFreeDays() {
+            const container = document.getElementById('free-days-checkboxes');
+            const days = [];
+            container.querySelectorAll('input[type="checkbox"]').forEach((cb, index) => { if (cb.checked) { const dayNames = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']; days.push(dayNames[index]); } });
+            return days;
+        }
+
+        async function loginAsPatient() { const phone = document.getElementById('patient-phone').value.trim(); if (!phone) return alert('Enter phone number'); await performLogin(phone); }
+        async function loginAsDoctor() { const phone = document.getElementById('doctor-phone').value.trim(); if (!phone) return alert('Enter phone number'); await performLogin(phone); }
+
+        async function performLogin(phone) {
+            try {
+                const data = await apiCall('/login', 'POST', { phone });
+                currentUser = data.user; currentRole = currentUser.role;
+                document.getElementById('auth-section').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                updateUserUI();
+                await loadCitiesAndDepartments();
+                if (currentRole === 'patient') {
+                    document.getElementById('tab-doctor').classList.add('hidden');
+                    document.getElementById('patient-view').classList.remove('hidden');
+                    document.getElementById('doctor-view').classList.add('hidden');
+                    switchTab('patient');
+                    await loadPatientBookings();
+                } else {
+                    document.getElementById('tab-doctor').classList.remove('hidden');
+                    document.getElementById('patient-view').classList.add('hidden');
+                    document.getElementById('doctor-view').classList.remove('hidden');
+                    switchTab('doctor');
+                    await loadDoctorData();
+                }
+                showToast(`Logged in as ${currentUser.name}`);
+            } catch (e) { showToast(e.message || 'Login failed', 'error'); }
+        }
+
+        async function showRegisterModal() {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white rounded-3xl w-full max-w-sm mx-4 p-6 modal">
+                    <div class="font-semibold text-xl mb-5">Create new account</div>
+                    <div class="space-y-4">
+                        <div><label class="text-xs font-medium text-slate-500">FULL NAME</label><input id="reg-name" type="text" class="w-full border px-4 py-2.5 rounded-2xl mt-1 text-sm" value="Demo User"></div>
+                        <div><label class="text-xs font-medium text-slate-500">PHONE NUMBER</label><input id="reg-phone" type="tel" class="w-full border px-4 py-2.5 rounded-2xl mt-1 text-sm" value="9876543222"></div>
+                        <div><label class="text-xs font-medium text-slate-500">CITY</label><select id="reg-city" class="w-full border px-4 py-2.5 rounded-2xl mt-1 text-sm"><option>Delhi</option><option>Mumbai</option><option>Bangalore</option><option>Hyderabad</option><option>Chennai</option><option>Kolkata</option><option>Pune</option><option>Ahmedabad</option></select></div>
+                        <div><label class="text-xs font-medium text-slate-500">I AM A</label><div class="flex gap-2 mt-1"><label class="flex-1 cursor-pointer"><input type="radio" name="reg-role" value="patient" checked class="mr-1.5"> Patient</label><label class="flex-1 cursor-pointer"><input type="radio" name="reg-role" value="doctor" class="mr-1.5"> Doctor</label></div></div>
+                    </div>
+                    <div class="flex gap-3 mt-6">
+                        <button onclick="this.closest('.fixed').remove()" class="flex-1 py-2.5 border text-sm rounded-2xl">Cancel</button>
+                        <button onclick="registerUser(this)" class="flex-1 py-2.5 bg-teal-800 text-white font-medium text-sm rounded-2xl">Register &amp; Login</button>
+                    </div>
+                </div>`;
+            document.body.appendChild(modal);
+        }
+
+        async function registerUser(btn) {
+            const container = btn.closest('.fixed');
+            const name = container.querySelector('#reg-name').value.trim();
+            const phone = container.querySelector('#reg-phone').value.trim();
+            const city = container.querySelector('#reg-city').value;
+            const role = container.querySelector('input[name="reg-role"]:checked').value;
+            if (!name || !phone) { alert('Name and phone required'); return; }
+            try {
+                const data = await apiCall('/register', 'POST', { name, phone, city, role });
+                container.remove();
+                currentUser = data.user; currentRole = role;
+                document.getElementById('auth-section').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                updateUserUI();
+                await loadCitiesAndDepartments();
+                if (role === 'patient') {
+                    document.getElementById('tab-doctor').classList.add('hidden');
+                    document.getElementById('patient-view').classList.remove('hidden');
+                    document.getElementById('doctor-view').classList.add('hidden');
+                    switchTab('patient');
+                    await loadPatientBookings();
+                } else {
+                    document.getElementById('tab-doctor').classList.remove('hidden');
+                    document.getElementById('patient-view').classList.add('hidden');
+                    document.getElementById('doctor-view').classList.remove('hidden');
+                    switchTab('doctor');
+                    await loadDoctorData();
+                }
+                showToast('Account created successfully!');
+            } catch (e) { showToast(e.message || 'Registration failed', 'error'); }
+        }
+
+        function updateUserUI() {
+            const nav = document.getElementById('nav-user-info');
+            nav.innerHTML = `<div class="flex items-center gap-x-3 text-right"><div><div class="font-semibold text-sm">${currentUser.name}</div><div class="text-[10px] text-teal-600">${currentUser.role.toUpperCase()} • ${currentUser.city}</div></div><div class="w-9 h-9 bg-teal-800 text-white rounded-full flex items-center justify-center text-xs font-bold">${currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2)}</div></div>`;
+            document.getElementById('welcome-text').innerHTML = currentRole === 'patient' ? `Hi, ${currentUser.name.split(' ')[0]}!` : `Dr. ${currentUser.name.split(' ').slice(1).join(' ')}`;
+            document.getElementById('user-role-city').innerHTML = `${currentUser.role} in ${currentUser.city}`;
+            updateWallet();
+        }
+
+        function updateWallet() { if (!currentUser) return; const el = document.getElementById('wallet-balance'); if (el) el.innerHTML = `₹${currentUser.balance}`; }
+
+        async function topUpWallet() {
+            if (!currentUser) return;
+            const amount = prompt('Enter top-up amount (demo):', '500');
+            if (!amount) return;
+            try {
+                const data = await apiCall('/topup', 'POST', { userId: currentUser.id, amount: parseInt(amount) });
+                currentUser = data.user;
+                updateWallet();
+                showToast(`Wallet topped up by ₹${amount}`);
+            } catch (e) { showToast(e.message, 'error'); }
+        }
+
+        function switchTab(role) {
+            const patientTab = document.getElementById('tab-patient');
+            const doctorTab = document.getElementById('tab-doctor');
+            const patientView = document.getElementById('patient-view');
+            const doctorView = document.getElementById('doctor-view');
+            if (role === 'patient') {
+                patientTab.classList.add('border-teal-700', 'text-teal-800', 'font-semibold');
+                doctorTab.classList.remove('border-teal-700', 'text-teal-800', 'font-semibold');
+                patientView.classList.remove('hidden');
+                doctorView.classList.add('hidden');
+            } else {
+                doctorTab.classList.add('border-teal-700', 'text-teal-800', 'font-semibold');
+                patientTab.classList.remove('border-teal-700', 'text-teal-800', 'font-semibold');
+                doctorView.classList.remove('hidden');
+                patientView.classList.add('hidden');
+            }
+        }
+
+        async function findRandomDoctor() {
+            const city = document.getElementById('book-city').value;
+            const department = document.getElementById('book-department').value;
+            const preferred_date = document.getElementById('book-date').value;
+            if (!city || !department || !preferred_date) { showToast('Please select city, department and date', 'error'); return; }
+            try {
+                const res = await apiCall('/find-doctor', 'POST', { patientId: currentUser.id, city, department, preferred_date });
+                if (!res.success) { showToast(res.message || 'No doctor found', 'error'); return; }
+                selectedDoctorForBooking = res.doctor;
+                currentBookingData = { city, department, preferred_date };
+                document.getElementById('doctor-modal').classList.remove('hidden');
+                document.getElementById('random-doctor-info').innerHTML = `${res.message} <br> <span class="font-medium text-teal-700">${preferred_date}</span>`;
+                document.getElementById('modal-doctor-card').innerHTML = `
+                    <div class="flex gap-4 items-start">
+                        <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex-shrink-0 flex items-center justify-center"><i class="fa-solid fa-user-md text-3xl text-emerald-700"></i></div>
+                        <div class="flex-1">
+                            <div class="font-semibold">${res.doctor.name}</div>
+                            <div class="text-sm text-emerald-700">${res.doctor.department}</div>
+                            <div class="flex flex-wrap gap-1 mt-3">
+                                <span class="inline-flex items-center px-2.5 py-0.5 bg-white rounded-lg text-xs border">${res.doctor.city}</span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 bg-white rounded-lg text-xs border">Free on: ${res.doctor.free_days.join(', ')}</span>
+                            </div>
+                            <div class="mt-3 text-xs"><span class="font-medium">Max patients/day:</span> ${res.doctor.max_patients_per_day}</div>
+                        </div>
+                    </div>`;
+            } catch (e) { showToast(e.message, 'error'); }
+        }
+
+        function closeDoctorModal() {
+            document.getElementById('doctor-modal').classList.add('hidden');
+            selectedDoctorForBooking = null; currentBookingData = null;
+        }
+
+        async function confirmBooking() {
+            if (!selectedDoctorForBooking || !currentBookingData) return;
+            const type = document.querySelector('input[name="consult-type"]:checked').value;
+            try {
+                const res = await apiCall('/book', 'POST', { patientId: currentUser.id, doctorId: selectedDoctorForBooking.user_id || selectedDoctorForBooking.id, scheduled_date: currentBookingData.preferred_date, consultation_type: type });
+                closeDoctorModal();
+                currentUser = res.patient;
+                updateWallet();
+                showToast(res.message);
+                await loadPatientBookings();
+            } catch (e) { showToast(e.message, 'error'); }
+        }
+
+        async function loadPatientBookings() {
+            if (!currentUser || currentUser.role !== 'patient') return;
+            const container = document.getElementById('patient-bookings');
+            container.innerHTML = '<div class="col-span-full text-center py-6 text-sm text-slate-400">Loading bookings...</div>';
+            try {
+                const bookings = await apiCall(`/bookings/patient/${currentUser.id}`);
+                if (bookings.length === 0) {
+                    container.innerHTML = `<div class="col-span-full text-center py-8 px-4 border rounded-3xl"><i class="fa-solid fa-calendar text-3xl text-slate-300 mb-3"></i><p class="text-sm text-slate-400">No consultations yet. Book your first free one above!</p></div>`;
+                    return;
+                }
+                container.innerHTML = '';
+                const currentMonth = new Date().toISOString().slice(0, 7);
+                let completedThisMonth = 0;
+                bookings.forEach(b => {
+                    if (b.status === 'completed' && b.scheduled_date.startsWith(currentMonth)) completedThisMonth++;
+                    const div = document.createElement('div');
+                    div.className = `card border rounded-3xl p-4 bg-white`;
+                    let statusHTML = '';
+                    if (b.status === 'locked') statusHTML = `<span class="status-locked text-xs px-3 py-px rounded-full font-medium">LOCKED</span>`;
+                    else if (b.status === 'completed') statusHTML = `<span class="status-completed text-xs px-3 py-px rounded-full font-medium">COMPLETED</span>`;
+                    else statusHTML = `<span class="status-cancelled text-xs px-3 py-px rounded-full font-medium">CANCELLED</span>`;
+                    div.innerHTML = `
+                        <div class="flex justify-between items-start"><div><div class="font-semibold">${b.doctor_name}</div><div class="text-xs text-emerald-600">${b.department}</div></div>${statusHTML}</div>
+                        <div class="mt-4 text-sm">
+                            <div class="flex items-center gap-x-1.5 text-slate-600"><i class="fa-regular fa-calendar text-xs"></i> <span>${b.scheduled_date}</span></div>
+                            <div class="flex items-center gap-x-1.5 text-slate-600 mt-0.5"><i class="fa-solid fa-${b.consultation_type === 'video' ? 'video' : 'hospital'} text-xs"></i> <span class="capitalize">${b.consultation_type}</span> <span class="text-xs ml-1 px-1.5 bg-slate-100 rounded">₹${b.lock_amount || 100}</span></div>
+                        </div>
+                        <div class="mt-4 flex gap-2">
+                            ${b.status === 'locked' ? `<button onclick="cancelBooking(${b.id}, this)" class="flex-1 text-xs py-2 border rounded-2xl hover:bg-red-50 text-red-600">Cancel</button><button onclick="simulateComplete(${b.id}, ${b.doctor_id}, this)" class="flex-1 text-xs py-2 bg-emerald-700 text-white rounded-2xl">Mark Completed (Doctor)</button>` : ''}
+                            ${b.status === 'completed' ? `<div class="text-xs text-emerald-600 flex items-center gap-1"><i class="fa-solid fa-check-circle"></i> <span>Refunded</span></div>` : ''}
+                        </div>`;
+                    container.appendChild(div);
+                });
+                const el = document.getElementById('monthly-status');
+                if (el) {
+                    if (completedThisMonth >= 1) { el.className = 'px-3 py-1 text-xs rounded-full font-semibold bg-red-100 text-red-700'; el.innerHTML = `Free consult used this month`; }
+                    else { el.className = 'px-3 py-1 text-xs rounded-full font-semibold bg-emerald-100 text-emerald-700'; el.innerHTML = `1 free consultation available`; }
+                }
+            } catch (e) { container.innerHTML = `<div class="text-red-500 text-sm p-4">Failed to load bookings: ${e.message}</div>`; }
+        }
+
+        async function cancelBooking(bookingId, btn) {
+            if (!confirm('Cancel this booking? ₹100 will be refunded.')) return;
+            try {
+                await apiCall('/cancel', 'POST', { bookingId, userId: currentUser.id });
+                showToast('Booking cancelled and amount refunded');
+                await loadPatientBookings();
+                updateWallet();
+            } catch (e) { showToast(e.message, 'error'); }
+        }
+
+        async function simulateComplete(bookingId, doctorId, btn) {
+            try {
+                const res = await apiCall('/complete', 'POST', { bookingId, doctorId });
+                showToast(res.message);
+                await loadPatientBookings();
+                updateWallet();
+                if (!document.getElementById('doctor-view').classList.contains('hidden')) await loadDoctorBookings();
+            } catch (e) { showToast(e.message, 'error'); }
+        }
+
+        async function loadDoctorData() {
+            if (!currentUser || currentUser.role !== 'doctor') return;
+            await loadDoctorProfile();
+            await loadDoctorBookings();
+        }
+
+        async function loadDoctorProfile() {
+            try {
+                const profile = await apiCall(`/doctor/profile/${currentUser.id}`);
+                document.getElementById('doc-department').value = profile.department;
+                document.getElementById('max-patients').value = profile.max_patients_per_day || 5;
+                setupFreeDaysCheckboxes(profile.free_days || []);
+                document.getElementById('stats-free-days').innerHTML = (profile.free_days || []).length;
+                document.getElementById('stats-max-patients').innerHTML = profile.max_patients_per_day || 5;
+            } catch (e) {
+                setupFreeDaysCheckboxes(['Monday', 'Wednesday']);
+                document.getElementById('doc-department').value = 'General Medicine';
+                document.getElementById('max-patients').value = 5;
+            }
+        }
+
+        async function saveDoctorProfile() {
+            const department = document.getElementById('doc-department').value;
+            const free_days = getSelectedFreeDays();
+            const max_patients_per_day = parseInt(document.getElementById('max-patients').value) || 5;
+            if (free_days.length === 0) { showToast('Please select at least one free day', 'error'); return; }
+            try {
+                const res = await apiCall('/doctor/profile', 'POST', { userId: currentUser.id, department, free_days, max_patients_per_day });
+                showToast('Profile settings saved');
+                document.getElementById('stats-free-days').innerHTML = free_days.length;
+                document.getElementById('stats-max-patients').innerHTML = max_patients_per_day;
+            } catch (e) { showToast(e.message, 'error'); }
+        }
+
+        async function loadDoctorBookings() {
+            const container = document.getElementById('doctor-bookings');
+            container.innerHTML = '<div class="col-span-full text-center py-6 text-sm text-slate-400">Loading...</div>';
+            try {
+                const bookings = await apiCall(`/bookings/doctor/${currentUser.id}`);
+                const upcoming = bookings.filter(b => b.status === 'locked').length;
+                const currentMonth = new Date().toISOString().slice(0,7);
+                const completedThisMonth = bookings.filter(b => b.status === 'completed' && b.scheduled_date && b.scheduled_date.startsWith(currentMonth)).length;
+                document.getElementById('stats-upcoming').innerHTML = upcoming;
+                document.getElementById('stats-completed').innerHTML = completedThisMonth;
+                if (bookings.length === 0) {
+                    container.innerHTML = `<div class="col-span-full text-center py-8 px-4 border rounded-3xl bg-white"><i class="fa-solid fa-users text-3xl text-slate-300 mb-3"></i><p class="text-sm text-slate-400">No bookings yet. Patients will find you randomly.</p></div>`;
+                    return;
+                }
+                container.innerHTML = '';
+                bookings.forEach(b => {
+                    const div = document.createElement('div');
+                    div.className = `card border rounded-3xl p-4 bg-white`;
+                    let statusBadge = '';
+                    if (b.status === 'locked') statusBadge = `<span class="status-locked text-xs px-3 py-px rounded-full font-medium">LOCKED</span>`;
+                    else if (b.status === 'completed') statusBadge = `<span class="status-completed text-xs px-3 py-px rounded-full font-medium">COMPLETED</span>`;
+                    else statusBadge = `<span class="status-cancelled text-xs px-3 py-px rounded-full font-medium">CANCELLED</span>`;
+                    div.innerHTML = `
+                        <div class="flex justify-between"><div><div class="font-semibold">${b.patient_name}</div><div class="text-xs text-emerald-700">${b.patient_phone} • ${b.patient_city}</div></div>${statusBadge}</div>
+                        <div class="my-3 text-sm text-slate-600"><div><strong>${b.department}</strong> • ${b.scheduled_date}</div><div class="text-xs mt-0.5">${b.consultation_type} consultation</div></div>
+                        ${b.status === 'locked' ? `<div class="flex gap-2"><button onclick="completeConsultation(${b.id}, this)" class="flex-1 text-xs bg-emerald-700 text-white rounded-2xl py-2 font-medium"><i class="fa-solid fa-check mr-1.5"></i> Mark Completed</button><button onclick="cancelBooking(${b.id}, this)" class="flex-1 text-xs border text-red-600 hover:bg-red-50 rounded-2xl py-2">Cancel</button></div>` : b.status === 'completed' ? `<div class="text-xs text-emerald-600 flex items-center gap-1"><i class="fa-solid fa-check-double"></i> <span>Patient refunded ₹${b.lock_amount || 100}</span></div>` : ''}`;
+                    container.appendChild(div);
+                });
+            } catch (e) { container.innerHTML = `<div class="text-red-500">Failed to load: ${e.message}</div>`; }
+        }
+
+        async function completeConsultation(bookingId, btn) {
+            if (!confirm('Mark this consultation as completed? This will refund ₹100 to the patient.')) return;
+            try {
+                const res = await apiCall('/complete', 'POST', { bookingId: bookingId, doctorId: currentUser.id });
+                showToast(res.message);
+                await loadDoctorBookings();
+                if (!document.getElementById('patient-view').classList.contains('hidden')) await loadPatientBookings();
+            } catch (e) { showToast(e.message, 'error'); }
+        }
+
+        function logout() {
+            currentUser = null; currentRole = null;
+            document.getElementById('main-app').classList.add('hidden');
+            document.getElementById('auth-section').classList.remove('hidden');
+            document.getElementById('patient-bookings').innerHTML = '';
+            document.getElementById('doctor-bookings').innerHTML = '';
+        }
+
+        function initDate() {
+            const dateInput = document.getElementById('book-date');
+            if (dateInput) {
+                const today = new Date();
+                today.setDate(today.getDate() + 3);
+                dateInput.value = today.toISOString().split('T')[0];
+                dateInput.setAttribute('min', new Date().toISOString().split('T')[0]);
+            }
+        }
+
+        window.onload = async function() {
+            initDate();
+            await loadCitiesAndDepartments();
+        };
+    </script>
+</body>
+</html>
