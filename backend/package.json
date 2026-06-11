@@ -5,10 +5,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js",
-    "seed": "node -e \"require('./server.js')\""
+    "dev": "node server.js"
   },
-  "keywords": ["healthcare", "india", "free-consultation", "telemedicine", "mvp"],
+  "keywords": ["healthcare", "india", "free-consultation", "mvp"],
   "author": "hambuilds",
   "license": "MIT",
   "dependencies": {
@@ -17,6 +16,6 @@
     "express": "^4.21.2"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   }
 }
