@@ -1,0 +1,40 @@
+=== How to push FreeDoc India to GitHub ===
+
+The code is fully ready. The only missing piece is GitHub authentication.
+
+Option 1: Use GitHub CLI (recommended)
+1. Install gh: https://cli.github.com/
+2. Run: gh auth login
+3. Then:
+   cd /home/user/freeconsult-app
+   git remote add origin https://github.com/hambuilds/doctors.git   # if needed
+   git push -u origin main --force
+
+Option 2: Using Personal Access Token
+1. Go to https://github.com/settings/tokens → Generate new token (classic)
+   - Scopes: repo (full control)
+2. Run these commands:
+   cd /home/user/freeconsult-app
+   git remote add origin https://github.com/hambuilds/doctors.git
+   git push https://<YOUR_TOKEN>@github.com/hambuilds/doctors.git main --force
+
+Option 3: Using SSH (if you have keys set up)
+   git remote set-url origin git@github.com:hambuilds/doctors.git
+   git push -u origin main --force
+
+Current repo status:
+- Branch: main
+- Latest commit: d11da16 (full frontend + backend)
+- All core files committed:
+  • backend/server.js (complete Node/Express API)
+  • backend/public/index.html (beautiful full-featured UI)
+  • backend/package.json
+  • .gitignore
+  • Database will be created on first run
+
+After pushing, anyone can run:
+  cd backend
+  npm install
+  node server.js
+  # then open http://localhost:3000
+
