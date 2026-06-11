@@ -66,3 +66,33 @@ Built as a fully functional MVP in one go.
 ---
 
 **Repo pushed from Arena.ai Agent**
+
+---
+
+## 🚀 Ready to Launch?
+
+See the full **deployment and production guide** here:
+
+→ **[DEPLOY.md](DEPLOY.md)**
+
+### Fastest Way to Go Live (Recommended)
+
+1. Push your latest code (already done)
+2. Go to [Render.com](https://render.com)
+3. Deploy from GitHub → use the `render.yaml` file
+4. Your app will be live in ~2 minutes
+
+### Local Quick Start
+
+```bash
+cd backend
+npm install
+node server.js
+```
+
+Open http://localhost:3000
+
+**Demo accounts**:
+- Patient: 9876543210
+- Doctor: 9123456780
+

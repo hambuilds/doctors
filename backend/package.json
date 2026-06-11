@@ -1,18 +1,22 @@
 {
-  "name": "backend",
-  "version": "1.0.0",
-  "main": "index.js",
+  "name": "freedoc-india",
+  "version": "0.1.0",
+  "description": "Free offline consultations for patients in India - MVP",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "dev": "node server.js",
+    "seed": "node -e \"require('./server.js')\""
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "keywords": ["healthcare", "india", "free-consultation", "telemedicine", "mvp"],
+  "author": "hambuilds",
+  "license": "MIT",
   "dependencies": {
     "better-sqlite3": "^12.10.0",
-    "body-parser": "^2.2.2",
-    "cors": "^2.8.6",
-    "express": "^5.2.1"
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
