@@ -4,7 +4,7 @@ const path = require('path');
 const cors = require('cors');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Setup DB
 const db = new Database(path.join(__dirname, 'freedoc.db'), { verbose: console.log });
@@ -50,56 +50,7 @@ db.exec(`
   );
 `);
 
-// ============ SEED DATA ============
-const seedData = () => {
-  const count = db.prepare('SELECT COUNT(*) as c FROM users').get().c;
-  if (count > 0) return;
-
-  console.log('Seeding demo data for MVP...');
-
-  const insertUser = db.prepare(`INSERT INTO users (name, phone, city, role) VALUES (?, ?, ?, ?)`);
-
-  const patients = [
-    ['Rahul Sharma', '9876543210', 'Delhi', 'patient'],
-    ['Priya Patel', '9876543211', 'Mumbai', 'patient'],
-    ['Amit Kumar', '9876543212', 'Bangalore', 'patient'],
-  ];
-  const patientIds = patients.map(p => insertUser.run(...p).lastInsertRowid);
-
-  const doctors = [
-    ['Dr. Ananya Mehta', '9123456780', 'Delhi', 'doctor'],
-    ['Dr. Vikram Singh', '9123456781', 'Mumbai', 'doctor'],
-    ['Dr. Sneha Reddy', '9123456782', 'Bangalore', 'doctor'],
-    ['Dr. Rajesh Verma', '9123456783', 'Delhi', 'doctor'],
-    ['Dr. Kavita Joshi', '9123456784', 'Hyderabad', 'doctor'],
-    ['Dr. Arjun Nair', '9123456785', 'Chennai', 'doctor'],
-  ];
-  const doctorUserIds = doctors.map(d => insertUser.run(...d).lastInsertRowid);
-
-  const insertProfile = db.prepare(`INSERT INTO doctor_profiles (user_id, department, free_days, max_patients_per_day) VALUES (?, ?, ?, ?)`);
-  const profiles = [
-    [doctorUserIds[0], 'Cardiology', JSON.stringify(['Monday', 'Wednesday', 'Friday']), 4],
-    [doctorUserIds[1], 'General Medicine', JSON.stringify(['Tuesday', 'Thursday', 'Saturday']), 6],
-    [doctorUserIds[2], 'Pediatrics', JSON.stringify(['Monday', 'Thursday']), 3],
-    [doctorUserIds[3], 'Dermatology', JSON.stringify(['Wednesday', 'Friday']), 5],
-    [doctorUserIds[4], 'Orthopedics', JSON.stringify(['Monday', 'Tuesday', 'Friday']), 4],
-    [doctorUserIds[5], 'General Medicine', JSON.stringify(['Wednesday', 'Saturday']), 5],
-  ];
-  profiles.forEach(p => insertProfile.run(...p));
-
-  // Sample confirmed bookings (MVP)
-  const insertBooking = db.prepare(`INSERT INTO bookings (patient_id, doctor_id, scheduled_date, department, city, consultation_type, status) VALUES (?, ?, ?, ?, ?, ?, ?)`);
-  const today = new Date();
-  const futureDate1 = new Date(today.getTime() + 3*86400000).toISOString().split('T')[0];
-  const futureDate2 = new Date(today.getTime() + 5*86400000).toISOString().split('T')[0];
-
-  insertBooking.run(patientIds[1], doctorUserIds[1], futureDate1, 'General Medicine', 'Mumbai', 'inperson', 'confirmed');
-  insertBooking.run(patientIds[2], doctorUserIds[2], futureDate2, 'Pediatrics', 'Bangalore', 'inperson', 'confirmed');
-
-  console.log('MVP Demo data seeded!');
-};
-
-seedData();
+console.log('Database ready (no demo data seeded).');
 
 // ============ HELPERS ============
 const getWeekday = (dateStr) => new Date(dateStr).toLocaleDateString('en-US', { weekday: 'long' });
@@ -126,7 +77,7 @@ app.post('/api/login', (req, res) => {
   const { phone } = req.body;
   if (!phone) return res.status(400).json({ error: 'Phone required' });
   const user = db.prepare('SELECT * FROM users WHERE phone = ?').get(phone);
-  if (!user) return res.status(404).json({ error: 'User not found. Please register.' });
+  if (!user) return res.status(404).json({ error: 'User not found. Please register first.' });
   res.json({ success: true, user });
 });
 
@@ -149,7 +100,7 @@ app.post('/api/doctor/profile', (req, res) => {
   res.json({ success: true, profile });
 });
 
-// Find random doctor (MVP - free offline)
+// Find random doctor
 app.post('/api/find-doctor', (req, res) => {
   const { patientId, city, department, preferred_date } = req.body;
   if (!patientId || !city || !department || !preferred_date) return res.status(400).json({ error: 'Missing fields' });
@@ -177,7 +128,7 @@ app.post('/api/find-doctor', (req, res) => {
   res.json({ success: true, doctor: randomDoctor, message: `Random doctor selected from ${availableDoctors.length} options.` });
 });
 
-// Book - MVP: Free + Offline only
+// Book
 app.post('/api/book', (req, res) => {
   const { patientId, doctorId, scheduled_date } = req.body;
   if (!patientId || !doctorId || !scheduled_date) return res.status(400).json({ error: 'Missing fields' });
@@ -194,7 +145,7 @@ app.post('/api/book', (req, res) => {
   if (bookedCount >= (doctor.max_patients_per_day || 5)) return res.status(409).json({ error: 'No slots left.' });
 
   const active = db.prepare(`SELECT COUNT(*) as count FROM bookings WHERE patient_id = ? AND status = 'confirmed'`).get(patientId).count;
-  if (active >= 1) return res.status(409).json({ error: 'You already have an active booking. Cancel or complete it first.' });
+  if (active >= 1) return res.status(409).json({ error: 'You already have an active booking.' });
 
   const insert = db.prepare(`INSERT INTO bookings (patient_id, doctor_id, scheduled_date, department, city, consultation_type, status) VALUES (?, ?, ?, ?, ?, 'inperson', 'confirmed')`);
   const info = insert.run(patientId, doctorId, scheduled_date, doctor.department, doctor.city);
@@ -213,7 +164,6 @@ app.get('/api/bookings/doctor/:doctorId', (req, res) => {
   res.json(bookings);
 });
 
-// Complete - no refund in MVP
 app.post('/api/complete', (req, res) => {
   const { bookingId, doctorId } = req.body;
   const booking = db.prepare('SELECT * FROM bookings WHERE id = ? AND doctor_id = ?').get(bookingId, doctorId);
@@ -224,7 +174,6 @@ app.post('/api/complete', (req, res) => {
   res.json({ success: true, message: 'Consultation marked as completed. Thank you!' });
 });
 
-// Cancel
 app.post('/api/cancel', (req, res) => {
   const { bookingId } = req.body;
   const booking = db.prepare('SELECT * FROM bookings WHERE id = ?').get(bookingId);
@@ -237,6 +186,5 @@ app.post('/api/cancel', (req, res) => {
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
 app.listen(PORT, () => {
-  console.log(`🚀 FreeDoc India MVP (Free Offline) running on http://localhost:${PORT}`);
-  console.log('Demo phones: 9876543210 (patient) | 9123456780 (doctor)');
+  console.log(`🚀 FreeDoc India MVP running on port ${PORT}`);
 });
