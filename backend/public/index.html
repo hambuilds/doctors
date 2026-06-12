@@ -18,10 +18,6 @@
         .status-cancelled { background-color: #fee2e2; color: #991b1b; }
         .modal { animation: modalPop 0.2s ease forwards; }
         .testing-banner { background: linear-gradient(90deg, #fef3c7, #fde68c); color: #92400e; }
-        .rank-new { background: #f3f4f6; color: #374151; }
-        .rank-supporter { background: #d1fae5; color: #065f46; }
-        .rank-champion { background: #dbeafe; color: #1e40af; }
-        .rank-legend { background: #ede9fe; color: #5b21b6; }
     </style>
 </head>
 <body class="bg-slate-50">
@@ -29,7 +25,7 @@
     <div class="testing-banner text-center py-2 text-sm font-medium border-b border-yellow-200">
         <i class="fa-solid fa-flask mr-2"></i>
         <strong>TESTING VERSION</strong> — For friends &amp; early testers only. 
-        OTP = <strong>123456</strong> • Aadhaar last4 + OTP 123456 (mock)
+        <strong>OTP = 123456</strong> (mock) • Aadhaar last4 + OTP 123456 (mock)
     </div>
 
     <nav class="bg-white border-b sticky top-0 z-50">
@@ -54,52 +50,73 @@
     </nav>
 
     <div class="app-container px-4 py-6">
-        <!-- Auth -->
+        <!-- Auth Section -->
         <div id="auth-section">
-            <div class="max-w-md mx-auto bg-white rounded-3xl shadow p-8 border">
-                <div class="text-center mb-6">
+            <div class="max-w-2xl mx-auto">
+                <div class="text-center mb-8">
                     <h1 class="text-3xl font-semibold text-slate-800">Welcome to FreeDoc</h1>
-                    <p class="text-slate-500 mt-1 text-sm">1 free offline consultation every <strong>15 days</strong> • Completely free</p>
-                    <div class="mt-3 text-xs bg-yellow-50 border border-yellow-200 text-yellow-700 px-3 py-2 rounded-2xl">
-                        This is a <strong>testing version</strong>. Use OTP <strong>123456</strong> for everything.
+                    <p class="text-slate-500 mt-1">1 free offline consultation every 15 days • Completely free</p>
+                </div>
+
+                <!-- Separate Login for Patients and Doctors -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    
+                    <!-- Patient Login -->
+                    <div class="bg-white rounded-3xl shadow p-6 border">
+                        <div class="flex items-center gap-3 mb-4">
+                            <i class="fa-solid fa-user text-emerald-600 text-xl"></i>
+                            <span class="font-semibold text-lg text-slate-700">Patient Login</span>
+                        </div>
+                        <div class="space-y-3">
+                            <input type="text" id="patient-phone" class="w-full border px-4 py-2.5 rounded-2xl text-sm focus:outline-none focus:border-emerald-600" placeholder="Your phone number">
+                            <button onclick="sendOtpForRole('patient')" class="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold rounded-2xl text-sm">
+                                Send OTP
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Doctor Login -->
+                    <div class="bg-white rounded-3xl shadow p-6 border">
+                        <div class="flex items-center gap-3 mb-4">
+                            <i class="fa-solid fa-user-md text-emerald-600 text-xl"></i>
+                            <span class="font-semibold text-lg text-slate-700">Doctor Login</span>
+                        </div>
+                        <div class="space-y-3">
+                            <input type="text" id="doctor-phone" class="w-full border px-4 py-2.5 rounded-2xl text-sm focus:outline-none focus:border-emerald-600" placeholder="Your phone number">
+                            <button onclick="sendOtpForRole('doctor')" class="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold rounded-2xl text-sm">
+                                Send OTP
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <!-- OTP Login Flow -->
-                <div id="login-flow">
-                    <div class="mb-4">
-                        <div class="flex items-center gap-2 mb-2">
-                            <i class="fa-solid fa-mobile-alt text-emerald-600"></i>
-                            <span class="font-semibold text-slate-700">Enter Phone Number</span>
-                        </div>
-                        <div class="flex gap-2">
-                            <input type="text" id="phone-input" class="flex-1 border px-4 py-2.5 rounded-2xl text-sm focus:outline-none focus:border-emerald-600" placeholder="10 digit phone number">
-                            <button onclick="sendOtp()" class="px-6 bg-emerald-700 hover:bg-emerald-800 transition-colors text-white font-semibold rounded-2xl text-sm">Send OTP</button>
-                        </div>
+                <!-- Shared OTP Verification -->
+                <div id="otp-section" class="hidden max-w-md mx-auto bg-white rounded-3xl shadow p-6 border mb-6">
+                    <div class="text-center mb-4">
+                        <span class="font-medium">Enter OTP</span><br>
+                        <span class="text-xs text-slate-500">For testing use <strong>123456</strong></span>
                     </div>
-
-                    <div id="otp-section" class="hidden">
-                        <div class="mb-2">
-                            <span class="text-sm text-slate-600">Enter OTP (use <strong>123456</strong> for testing)</span>
-                        </div>
-                        <div class="flex gap-2">
-                            <input type="text" id="otp-input" class="flex-1 border px-4 py-2.5 rounded-2xl text-sm focus:outline-none focus:border-emerald-600" placeholder="123456" maxlength="6">
-                            <button onclick="verifyOtpAndLogin()" class="px-6 bg-emerald-700 hover:bg-emerald-800 transition-colors text-white font-semibold rounded-2xl text-sm">Verify &amp; Login</button>
-                        </div>
-                        <button onclick="resendOtp()" class="text-xs text-emerald-600 mt-1">Resend OTP</button>
+                    <div class="flex gap-2">
+                        <input type="text" id="otp-input" class="flex-1 border px-4 py-2.5 rounded-2xl text-sm focus:outline-none focus:border-emerald-600" placeholder="123456" maxlength="6">
+                        <button onclick="verifyOtpAndLogin()" class="px-6 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold rounded-2xl text-sm">Verify &amp; Login</button>
                     </div>
+                    <button onclick="resendOtp()" class="text-xs text-emerald-600 mt-2 block mx-auto">Resend OTP</button>
                 </div>
 
-                <div class="border-t pt-4 mt-4">
-                    <button onclick="showRegisterModal()" class="w-full text-sm flex items-center justify-center gap-x-2 border py-2.5 rounded-2xl hover:bg-slate-50 text-slate-600">
-                        <i class="fa-solid fa-user-plus"></i> <span>New user? Register here</span>
+                <!-- Register -->
+                <div class="max-w-md mx-auto text-center">
+                    <button onclick="showRegisterModal()" class="w-full text-sm flex items-center justify-center gap-x-2 border py-3 rounded-2xl hover:bg-slate-50 text-slate-600 font-medium">
+                        <i class="fa-solid fa-user-plus"></i> 
+                        <span>New user? Register as Patient or Doctor</span>
                     </button>
+                    <p class="text-[10px] text-slate-400 mt-2">Registration is free. Doctors are manually approved during testing.</p>
                 </div>
             </div>
         </div>
 
         <!-- Main App -->
         <div id="main-app" class="hidden">
+            <!-- Header same as before -->
             <div class="flex justify-between items-center mb-6">
                 <div>
                     <h2 id="welcome-text" class="text-2xl font-semibold text-slate-800"></h2>
@@ -116,10 +133,9 @@
                 <div id="tab-doctor" onclick="switchTab('doctor')" class="tab-button px-5 py-2.5 font-medium cursor-pointer flex-1 text-center border-b-2 border-transparent hidden">Doctor</div>
             </div>
 
-            <!-- PATIENT VIEW -->
+            <!-- Patient View -->
             <div id="patient-view">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                    <!-- Book Section -->
                     <div class="lg:col-span-7 bg-white rounded-3xl shadow p-6 border">
                         <div class="flex items-center justify-between mb-5">
                             <div>
@@ -143,14 +159,13 @@
                     <div class="lg:col-span-5 bg-white rounded-3xl shadow p-6 border flex flex-col">
                         <h3 class="font-semibold text-slate-700 mb-3">How it works</h3>
                         <div class="space-y-3 text-sm flex-1">
-                            <div class="flex gap-3"><div class="font-mono text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded h-fit mt-0.5">1</div><div class="text-slate-600">Choose city + department + date</div></div>
+                            <div class="flex gap-3"><div class="font-mono text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded h-fit mt-0.5">1</div><div class="text-slate-600">Choose city, department &amp; date</div></div>
                             <div class="flex gap-3"><div class="font-mono text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded h-fit mt-0.5">2</div><div class="text-slate-600">Random doctor assigned</div></div>
-                            <div class="flex gap-3"><div class="font-mono text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded h-fit mt-0.5">3</div><div class="text-slate-600">Book (free)</div></div>
+                            <div class="flex gap-3"><div class="font-mono text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded h-fit mt-0.5">3</div><div class="text-slate-600">Book for free</div></div>
                             <div class="flex gap-3"><div class="font-mono text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded h-fit mt-0.5">4</div><div class="text-slate-600">Visit clinic → Doctor completes → Upload prescription + Rate</div></div>
                         </div>
                     </div>
 
-                    <!-- My Bookings -->
                     <div class="lg:col-span-12">
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="section-header">My Bookings</h3>
@@ -161,7 +176,7 @@
                 </div>
             </div>
 
-            <!-- DOCTOR VIEW -->
+            <!-- Doctor View -->
             <div id="doctor-view" class="hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                     <div class="lg:col-span-5 bg-white rounded-3xl p-6 shadow border">
@@ -196,23 +211,21 @@
         </div>
     </div>
 
-    <!-- Aadhaar Verification Modal -->
+    <!-- Aadhaar Modal -->
     <div id="aadhaar-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-3xl max-w-md w-full mx-3 p-6 modal">
-            <h3 class="font-semibold text-xl mb-4">Verify Aadhaar (Required for Patients)</h3>
-            <p class="text-sm text-slate-600 mb-4">For testing, enter last 4 digits of any Aadhaar and use OTP <strong>123456</strong>.</p>
-            
+            <h3 class="font-semibold text-xl mb-4">Verify Aadhaar (Required)</h3>
+            <p class="text-sm text-slate-600 mb-4">For testing: Enter last 4 digits + use OTP <strong>123456</strong></p>
             <div class="space-y-4">
                 <div>
                     <label class="text-xs font-medium text-slate-500">Last 4 digits of Aadhaar</label>
-                    <input id="aadhaar-last4" type="text" maxlength="4" class="w-full border px-4 py-2.5 rounded-2xl text-sm" placeholder="e.g. 1234">
+                    <input id="aadhaar-last4" type="text" maxlength="4" class="w-full border px-4 py-2.5 rounded-2xl text-sm" placeholder="1234">
                 </div>
                 <div>
-                    <label class="text-xs font-medium text-slate-500">Aadhaar OTP (use 123456 for testing)</label>
+                    <label class="text-xs font-medium text-slate-500">Aadhaar OTP</label>
                     <input id="aadhaar-otp" type="text" maxlength="6" class="w-full border px-4 py-2.5 rounded-2xl text-sm" placeholder="123456">
                 </div>
             </div>
-            
             <div class="flex gap-3 mt-6">
                 <button onclick="closeAadhaarModal()" class="flex-1 py-3 text-sm font-medium border rounded-2xl hover:bg-slate-50">Cancel</button>
                 <button onclick="verifyAadhaar()" class="flex-1 py-3 bg-emerald-700 hover:bg-emerald-800 text-sm font-semibold text-white rounded-2xl">Verify Aadhaar</button>
@@ -220,20 +233,17 @@
         </div>
     </div>
 
-    <!-- Doctor Modal -->
+    <!-- Doctor Found Modal -->
     <div id="doctor-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-3xl max-w-md w-full mx-3 p-6 modal">
             <div class="flex justify-between items-start mb-4">
                 <div><h3 class="font-semibold text-xl">Doctor Found!</h3><div id="random-doctor-info" class="text-sm text-slate-500"></div></div>
                 <button onclick="closeDoctorModal()" class="text-slate-400 hover:text-slate-600 text-xl">×</button>
             </div>
-
             <div class="bg-emerald-50 rounded-2xl p-4 mb-5" id="modal-doctor-card"></div>
-
             <div class="text-xs text-center mb-4 bg-emerald-50 p-3 rounded-2xl border border-emerald-100">
                 <strong>100% FREE</strong> — In-person only. Every 15 days.
             </div>
-
             <div class="flex gap-3">
                 <button onclick="closeDoctorModal()" class="flex-1 py-3 text-sm font-medium border rounded-2xl hover:bg-slate-50">Cancel</button>
                 <button onclick="confirmBooking()" class="flex-1 py-3 bg-emerald-700 hover:bg-emerald-800 text-sm font-semibold text-white rounded-2xl">CONFIRM FREE BOOKING</button>
@@ -241,8 +251,34 @@
         </div>
     </div>
 
+    <!-- Register Modal -->
+    <div id="register-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-3xl max-w-sm w-full mx-3 p-6 modal">
+            <div class="font-semibold text-xl mb-5">Create new account</div>
+            <div class="space-y-4">
+                <input id="reg-name" type="text" class="w-full border px-4 py-2.5 rounded-2xl text-sm" placeholder="Full Name">
+                <input id="reg-phone" type="tel" class="w-full border px-4 py-2.5 rounded-2xl text-sm" placeholder="Phone Number">
+                <select id="reg-city" class="w-full border px-4 py-2.5 rounded-2xl text-sm">
+                    <option>Delhi</option><option>Mumbai</option><option>Bangalore</option><option>Hyderabad</option><option>Chennai</option><option>Kolkata</option><option>Pune</option><option>Ahmedabad</option>
+                </select>
+                <div>
+                    <label class="text-xs font-medium text-slate-500 block mb-1">I am a</label>
+                    <div class="flex gap-4">
+                        <label class="flex items-center"><input type="radio" name="reg-role" value="patient" checked class="mr-2"> Patient</label>
+                        <label class="flex items-center"><input type="radio" name="reg-role" value="doctor" class="mr-2"> Doctor</label>
+                    </div>
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeRegisterModal()" class="flex-1 py-2.5 border text-sm rounded-2xl">Cancel</button>
+                <button onclick="registerUser()" class="flex-1 py-2.5 bg-emerald-700 text-white font-medium text-sm rounded-2xl">Register &amp; Login</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let currentUser = null, currentRole = null, selectedDoctorForBooking = null, currentBookingData = null;
+        let currentPhoneForOtp = '';
         const API_BASE = '';
 
         function showToast(msg, type = 'success') {
@@ -262,10 +298,13 @@
             return data;
         }
 
-        // ========== OTP LOGIN ==========
-        async function sendOtp() {
-            const phone = document.getElementById('phone-input').value.trim();
+        // ========== SEPARATE LOGIN + OTP ==========
+        async function sendOtpForRole(role) {
+            let phoneInputId = role === 'patient' ? 'patient-phone' : 'doctor-phone';
+            const phone = document.getElementById(phoneInputId).value.trim();
             if (!phone || phone.length < 10) return showToast('Enter valid 10-digit phone', 'error');
+
+            currentPhoneForOtp = phone;
             
             try {
                 const res = await apiCall('/send-otp', 'POST', { phone });
@@ -277,15 +316,14 @@
         }
 
         async function verifyOtpAndLogin() {
-            const phone = document.getElementById('phone-input').value.trim();
             const code = document.getElementById('otp-input').value.trim();
-            
             if (!code) return showToast('Enter OTP (123456 for testing)', 'error');
             
             try {
-                await apiCall('/verify-otp', 'POST', { phone, code });
-                // Now login
-                const data = await apiCall('/login', 'POST', { phone });
+                await apiCall('/verify-otp', 'POST', { phone: currentPhoneForOtp, code });
+                
+                // Now login with the phone
+                const data = await apiCall('/login', 'POST', { phone: currentPhoneForOtp });
                 currentUser = data.user;
                 currentRole = currentUser.role;
                 
@@ -300,7 +338,6 @@
                     document.getElementById('doctor-view').classList.add('hidden');
                     switchTab('patient');
                     
-                    // Aadhaar verification gate for patients
                     if (!currentUser.aadhaar_verified) {
                         showAadhaarModal();
                     } else {
@@ -321,33 +358,33 @@
         function resendOtp() {
             document.getElementById('otp-section').classList.add('hidden');
             document.getElementById('otp-input').value = '';
-            sendOtp();
+            // Re-send using last phone
+            if (currentPhoneForOtp) {
+                apiCall('/send-otp', 'POST', { phone: currentPhoneForOtp }).then(() => {
+                    document.getElementById('otp-section').classList.remove('hidden');
+                    showToast('OTP resent. Use 123456');
+                });
+            }
         }
 
-        // ========== AADHAAR VERIFICATION ==========
+        // ========== AADHAAR ==========
         function showAadhaarModal() {
             document.getElementById('aadhaar-modal').classList.remove('hidden');
         }
         function closeAadhaarModal() {
             document.getElementById('aadhaar-modal').classList.add('hidden');
         }
-
         async function verifyAadhaar() {
             const last4 = document.getElementById('aadhaar-last4').value.trim();
             const otp = document.getElementById('aadhaar-otp').value.trim();
-            
             if (!last4 || last4.length !== 4) return showToast('Enter last 4 digits', 'error');
-            if (!otp) return showToast('Enter Aadhaar OTP (use 123456)', 'error');
+            if (!otp) return showToast('Enter OTP 123456', 'error');
             
             try {
-                const res = await apiCall('/verify-aadhaar', 'POST', { 
-                    userId: currentUser.id, 
-                    aadhaarLast4: last4, 
-                    otp 
-                });
+                const res = await apiCall('/verify-aadhaar', 'POST', { userId: currentUser.id, aadhaarLast4: last4, otp });
                 currentUser = res.user;
                 closeAadhaarModal();
-                showToast('Aadhaar verified successfully!');
+                showToast('Aadhaar verified!');
                 updateUserUI();
                 await loadPatientBookings();
             } catch (e) {
@@ -355,16 +392,40 @@
             }
         }
 
-        // ========== REST OF THE APP (mostly same as before) ==========
+        // ========== REGISTER ==========
+        function showRegisterModal() {
+            document.getElementById('register-modal').classList.remove('hidden');
+        }
+        function closeRegisterModal() {
+            document.getElementById('register-modal').classList.add('hidden');
+        }
+        async function registerUser() {
+            const name = document.getElementById('reg-name').value.trim();
+            const phone = document.getElementById('reg-phone').value.trim();
+            const city = document.getElementById('reg-city').value;
+            const role = document.querySelector('input[name="reg-role"]:checked').value;
+
+            if (!name || !phone) return alert('Name and phone required');
+
+            try {
+                const res = await apiCall('/register', 'POST', { name, phone, city, role });
+                closeRegisterModal();
+                showToast('Registration successful! Now login with OTP using your phone.');
+                // Clear and focus login
+                document.getElementById('patient-phone').value = phone;
+                document.getElementById('doctor-phone').value = phone;
+            } catch (e) {
+                showToast(e.message, 'error');
+            }
+        }
+
+        // ========== REST OF APP (same as previous working version) ==========
         async function loadCitiesAndDepartments() {
             const cities = await apiCall('/cities');
             const depts = await apiCall('/departments');
-            const cSel = document.getElementById('book-city');
-            cSel.innerHTML = '<option value="">Select city</option>' + cities.map(c => `<option value="${c}">${c}</option>`).join('');
-            const dSel = document.getElementById('book-department');
-            dSel.innerHTML = '<option value="">Select department</option>' + depts.map(d => `<option value="${d}">${d}</option>`).join('');
-            const docD = document.getElementById('doc-department');
-            docD.innerHTML = depts.map(d => `<option value="${d}">${d}</option>`).join('');
+            document.getElementById('book-city').innerHTML = '<option value="">Select city</option>' + cities.map(c => `<option value="${c}">${c}</option>`).join('');
+            document.getElementById('book-department').innerHTML = '<option value="">Select department</option>' + depts.map(d => `<option value="${d}">${d}</option>`).join('');
+            document.getElementById('doc-department').innerHTML = depts.map(d => `<option value="${d}">${d}</option>`).join('');
         }
 
         function setupFreeDaysCheckboxes(selected = []) {
@@ -410,7 +471,7 @@
             document.getElementById('user-role-city').innerHTML = `${currentUser.role} in ${currentUser.city}`;
         }
 
-        function switchTab(role) { /* same as before */ 
+        function switchTab(role) {
             const pTab = document.getElementById('tab-patient');
             const dTab = document.getElementById('tab-doctor');
             const pView = document.getElementById('patient-view');
@@ -456,7 +517,8 @@
 
         function closeDoctorModal() {
             document.getElementById('doctor-modal').classList.add('hidden');
-            selectedDoctorForBooking = null; currentBookingData = null;
+            selectedDoctorForBooking = null;
+            currentBookingData = null;
         }
 
         async function confirmBooking() {
@@ -494,7 +556,7 @@
                     let extra = '';
                     if (b.status === 'completed') {
                         if (!b.prescription_data) {
-                            extra = `<div class="mt-3"><button onclick="uploadPrescription(${b.id})" class="text-xs w-full py-2 bg-emerald-600 text-white rounded-2xl">Upload Prescription (for records)</button></div>`;
+                            extra = `<div class="mt-3"><button onclick="uploadPrescription(${b.id})" class="text-xs w-full py-2 bg-emerald-600 text-white rounded-2xl">Upload Prescription</button></div>`;
                         } else {
                             extra = `<div class="mt-2 text-xs text-emerald-600"><i class="fa-solid fa-file-medical"></i> Prescription uploaded</div>`;
                         }
@@ -517,7 +579,7 @@
         }
 
         async function uploadPrescription(bookingId) {
-            const data = prompt('Paste prescription details or base64 image data (for testing):', 'Prescription: Paracetamol 500mg - 1 tablet twice daily for 3 days');
+            const data = prompt('Paste prescription details (for testing):', 'Paracetamol 500mg - 1 tablet twice daily for 3 days');
             if (!data) return;
             try {
                 await apiCall('/upload-prescription', 'POST', { bookingId, patientId: currentUser.id, prescriptionData: data });
@@ -546,7 +608,10 @@
             } catch (e) { showToast(e.message, 'error'); }
         }
 
-        async function loadDoctorData() { await loadDoctorProfile(); await loadDoctorBookings(); }
+        async function loadDoctorData() {
+            await loadDoctorProfile();
+            await loadDoctorBookings();
+        }
 
         async function loadDoctorProfile() {
             try {
@@ -599,7 +664,7 @@
 
                     let pres = '';
                     if (b.status === 'completed' && b.prescription_data) {
-                        pres = `<div class="mt-2 text-xs bg-emerald-50 p-2 rounded"><strong>Prescription:</strong> ${b.prescription_data.substring(0,80)}...</div>`;
+                        pres = `<div class="mt-2 text-xs bg-emerald-50 p-2 rounded"><strong>Prescription:</strong> ${b.prescription_data.substring(0,70)}...</div>`;
                     }
 
                     div.innerHTML = `
@@ -616,7 +681,7 @@
             if (!confirm('Mark this consultation as completed?')) return;
             try {
                 await apiCall('/complete', 'POST', { bookingId: id, doctorId: currentUser.id });
-                showToast('Marked completed. Patient can now upload prescription.');
+                showToast('Marked completed. Patient can upload prescription.');
                 await loadDoctorBookings();
                 await loadPatientBookings();
             } catch (e) { showToast(e.message, 'error'); }
@@ -628,6 +693,7 @@
             document.getElementById('auth-section').classList.remove('hidden');
             document.getElementById('patient-bookings').innerHTML = '';
             document.getElementById('doctor-bookings').innerHTML = '';
+            document.getElementById('otp-section').classList.add('hidden');
         }
 
         function initDate() {
