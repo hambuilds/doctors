@@ -295,7 +295,40 @@
     </div>
 
     <script>
-        let currentUser = null, currentRole = null, selectedDoctorForBooking = null, currentBookingData = null;
+
+window.addEventListener('error', function(e) {
+  console.error('Caught runtime error:', e);
+  try {
+    const banner = document.createElement('div');
+    banner.style.cssText = 'position:fixed;bottom:10px;right:10px;background:#dc2626;color:white;padding:8px 14px;border-radius:9999px;font-size:12px;z-index:99999';
+    banner.textContent = '! ' + (e.message || 'JS error');
+    document.body.appendChild(banner);
+    setTimeout(() => banner.remove(), 6000);
+  } catch(_) {}
+});
+
+
+function safeEl(id) {
+  return document.getElementById(id);
+}
+function safeClass(id, method, ...args) {
+  const el = document.getElementById(id);
+  if (el && el.classList && typeof el.classList[method] === 'function') {
+    el.classList[method](...args);
+  }
+}
+
+
+function safeClass(elId, action, ...args) {
+  const el = document.getElementById(elId);
+  if (el && el.classList) {
+    if (action === 'add') el.classList.add(...args);
+    else if (action === 'remove') el.classList.remove(...args);
+    else if (action === 'toggle') el.classList.toggle(...args);
+  }
+}
+
+let currentUser = null, currentRole = null, selectedDoctorForBooking = null, currentBookingData = null;
         let currentPhoneForOtp = '';
         const API_BASE = '';
 
@@ -322,8 +355,8 @@
 
         // Show auth forms for specific role
         function showAuthForRole(role) {
-            document.getElementById('get-started').classList.add('hidden');
-            document.getElementById('auth-forms').classList.remove('hidden');
+            (function(){const el=document.getElementById('get-started'); if(el && el.classList) el.classList.add('hidden');})();
+            (function(){const el=document.getElementById('auth-forms'); if(el && el.classList) el.classList.remove('hidden');})();
             
             const title = document.getElementById('auth-title');
             const subtitle = document.getElementById('auth-subtitle');
@@ -340,15 +373,15 @@
             window.intendedRole = role;
             
             // Reset forms
-            document.getElementById('phone-step').classList.remove('hidden');
-            document.getElementById('otp-step').classList.add('hidden');
+            (function(){const el=document.getElementById('phone-step'); if(el && el.classList) el.classList.remove('hidden');})();
+            (function(){const el=document.getElementById('otp-step'); if(el && el.classList) el.classList.add('hidden');})();
             document.getElementById('auth-phone').value = '';
             document.getElementById('auth-otp').value = '';
         }
 
         function hideAuthForms() {
-            document.getElementById('auth-forms').classList.add('hidden');
-            document.getElementById('get-started').classList.remove('hidden');
+            (function(){const el=document.getElementById('auth-forms'); if(el && el.classList) el.classList.add('hidden');})();
+            (function(){const el=document.getElementById('get-started'); if(el && el.classList) el.classList.remove('hidden');})();
         }
 
         // OTP functions
@@ -361,8 +394,8 @@
             try {
                 const res = await apiCall('/send-otp', 'POST', { phone });
                 showToast(res.message || 'OTP sent. Use 123456');
-                document.getElementById('phone-step').classList.add('hidden');
-                document.getElementById('otp-step').classList.remove('hidden');
+                (function(){const el=document.getElementById('phone-step'); if(el && el.classList) el.classList.add('hidden');})();
+                (function(){const el=document.getElementById('otp-step'); if(el && el.classList) el.classList.remove('hidden');})();
             } catch (e) {
                 showToast(e.message, 'error');
             }
@@ -379,17 +412,17 @@
                 currentUser = data.user;
                 currentRole = currentUser.role;
                 
-                document.getElementById('auth-forms').classList.add('hidden');
-                document.getElementById('main-app').classList.remove('hidden');
-                document.getElementById('get-started').classList.remove('hidden'); // just in case
+                (function(){const el=document.getElementById('auth-forms'); if(el && el.classList) el.classList.add('hidden');})();
+                (function(){const el=document.getElementById('main-app'); if(el && el.classList) el.classList.remove('hidden');})();
+                (function(){const el=document.getElementById('get-started'); if(el && el.classList) el.classList.remove('hidden');})(); // just in case
                 
                 updateUserUI();
                 await loadCitiesAndDepartments();
                 
                 if (currentRole === 'patient') {
-                    document.getElementById('tab-doctor').classList.add('hidden');
-                    document.getElementById('patient-view').classList.remove('hidden');
-                    document.getElementById('doctor-view').classList.add('hidden');
+                    (function(){const el=document.getElementById('tab-doctor'); if(el && el.classList) el.classList.add('hidden');})();
+                    (function(){const el=document.getElementById('patient-view'); if(el && el.classList) el.classList.remove('hidden');})();
+                    (function(){const el=document.getElementById('doctor-view'); if(el && el.classList) el.classList.add('hidden');})();
                     switchTab('patient');
                     
                     if (!currentUser.aadhaar_verified) {
@@ -398,9 +431,9 @@
                         await loadPatientBookings();
                     }
                 } else {
-                    document.getElementById('tab-doctor').classList.remove('hidden');
-                    document.getElementById('patient-view').classList.add('hidden');
-                    document.getElementById('doctor-view').classList.remove('hidden');
+                    (function(){const el=document.getElementById('tab-doctor'); if(el && el.classList) el.classList.remove('hidden');})();
+                    (function(){const el=document.getElementById('patient-view'); if(el && el.classList) el.classList.add('hidden');})();
+                    (function(){const el=document.getElementById('doctor-view'); if(el && el.classList) el.classList.remove('hidden');})();
                     switchTab('doctor');
                     await loadDoctorData();
                 }
@@ -410,21 +443,21 @@
         }
 
         function resendOtpFromLanding() {
-            document.getElementById('otp-step').classList.add('hidden');
-            document.getElementById('phone-step').classList.remove('hidden');
+            (function(){const el=document.getElementById('otp-step'); if(el && el.classList) el.classList.add('hidden');})();
+            (function(){const el=document.getElementById('phone-step'); if(el && el.classList) el.classList.remove('hidden');})();
             document.getElementById('auth-otp').value = '';
             sendOtpFromLanding();
         }
 
         // Register
         function showRegisterModalFromLanding() {
-            document.getElementById('auth-forms').classList.add('hidden');
-            document.getElementById('register-modal').classList.remove('hidden');
+            (function(){const el=document.getElementById('auth-forms'); if(el && el.classList) el.classList.add('hidden');})();
+            (function(){const el=document.getElementById('register-modal'); if(el && el.classList) el.classList.remove('hidden');})();
         }
 
         function closeRegisterModal() {
-            document.getElementById('register-modal').classList.add('hidden');
-            document.getElementById('get-started').classList.remove('hidden');
+            (function(){const el=document.getElementById('register-modal'); if(el && el.classList) el.classList.add('hidden');})();
+            (function(){const el=document.getElementById('get-started'); if(el && el.classList) el.classList.remove('hidden');})();
         }
 
         async function registerUserFromModal() {
@@ -442,8 +475,8 @@
                 
                 // Pre-fill the phone
                 document.getElementById('auth-phone').value = phone;
-                document.getElementById('get-started').classList.add('hidden');
-                document.getElementById('auth-forms').classList.remove('hidden');
+                (function(){const el=document.getElementById('get-started'); if(el && el.classList) el.classList.add('hidden');})();
+                (function(){const el=document.getElementById('auth-forms'); if(el && el.classList) el.classList.remove('hidden');})();
                 
                 const title = document.getElementById('auth-title');
                 const subtitle = document.getElementById('auth-subtitle');
@@ -456,10 +489,10 @@
 
         // Aadhaar
         function showAadhaarModal() {
-            document.getElementById('aadhaar-modal').classList.remove('hidden');
+            (function(){const el=document.getElementById('aadhaar-modal'); if(el && el.classList) el.classList.remove('hidden');})();
         }
         function closeAadhaarModal() {
-            document.getElementById('aadhaar-modal').classList.add('hidden');
+            (function(){const el=document.getElementById('aadhaar-modal'); if(el && el.classList) el.classList.add('hidden');})();
         }
         async function verifyAadhaar() {
             const last4 = document.getElementById('aadhaar-last4').value.trim();
@@ -484,9 +517,9 @@
             try {
                 const cities = await apiCall('/cities');
                 const depts = await apiCall('/departments');
-                document.getElementById('book-city').innerHTML = '<option value="">Select city</option>' + cities.map(c => `<option value="${c}">${c}</option>`).join('');
-                document.getElementById('book-department').innerHTML = '<option value="">Select department</option>' + depts.map(d => `<option value="${d}">${d}</option>`).join('');
-                document.getElementById('doc-department').innerHTML = depts.map(d => `<option value="${d}">${d}</option>`).join('');
+                const __el=document.getElementById('book-city'); if(__el) __el.innerHTML = '<option value="">Select city</option>' + cities.map(c => `<option value="${c}">${c}</option>`).join('');
+                const __el=document.getElementById('book-department'); if(__el) __el.innerHTML = '<option value="">Select department</option>' + depts.map(d => `<option value="${d}">${d}</option>`).join('');
+                const __el=document.getElementById('doc-department'); if(__el) __el.innerHTML = depts.map(d => `<option value="${d}">${d}</option>`).join('');
             } catch(e) {}
         }
 
@@ -506,10 +539,10 @@
                     '<span class="text-orange-600 text-xs cursor-pointer" onclick="showAadhaarModal()"><i class="fa-solid fa-exclamation-triangle"></i> Verify Aadhaar</span>';
                 html = html.replace('</div></div>', `</div>${verified}</div>`);
             }
-            document.getElementById('nav-user-info').innerHTML = html;
+            const __el=document.getElementById('nav-user-info'); if(__el) __el.innerHTML = html;
 
-            document.getElementById('welcome-text').innerHTML = currentRole === 'patient' ? `Hi, ${currentUser.name.split(' ')[0]}!` : `Dr. ${currentUser.name.split(' ').slice(1).join(' ')}`;
-            document.getElementById('user-role-city').innerHTML = `${currentUser.role} in ${currentUser.city}`;
+            const __el=document.getElementById('welcome-text'); if(__el) __el.innerHTML = currentRole === 'patient' ? `Hi, ${currentUser.name.split(' ')[0]}!` : `Dr. ${currentUser.name.split(' ').slice(1).join(' ')}`;
+            const __el=document.getElementById('user-role-city'); if(__el) __el.innerHTML = `${currentUser.role} in ${currentUser.city}`;
         }
 
         function switchTab(role) {
@@ -518,13 +551,15 @@
             const pView = document.getElementById('patient-view');
             const dView = document.getElementById('doctor-view');
             if (role === 'patient') {
-                pTab.classList.add('border-emerald-700', 'text-emerald-800', 'font-semibold');
-                dTab.classList.remove('border-emerald-700', 'text-emerald-800', 'font-semibold');
-                pView.classList.remove('hidden'); dView.classList.add('hidden');
+                if (pTab && pTab.classList) if (pTab && pTab.classList) if(pTab&&pTab.classList)pTab.classList.add('border-emerald-700', 'text-emerald-800', 'font-semibold');
+                if (dTab && dTab.classList) if (dTab && dTab.classList) if(dTab&&dTab.classList)dTab.classList.remove('border-emerald-700', 'text-emerald-800', 'font-semibold');
+                if (pView && pView.classList) if (pView && pView.classList) if(pView&&pView.classList)pView.classList.remove('hidden');
+                if (dView && dView.classList) if (dView && dView.classList) if(dView&&dView.classList)dView.classList.add('hidden');
             } else {
-                dTab.classList.add('border-emerald-700', 'text-emerald-800', 'font-semibold');
-                pTab.classList.remove('border-emerald-700', 'text-emerald-800', 'font-semibold');
-                dView.classList.remove('hidden'); pView.classList.add('hidden');
+                if (dTab && dTab.classList) if (dTab && dTab.classList) if(dTab&&dTab.classList)dTab.classList.add('border-emerald-700', 'text-emerald-800', 'font-semibold');
+                if (pTab && pTab.classList) if (pTab && pTab.classList) if(pTab&&pTab.classList)pTab.classList.remove('border-emerald-700', 'text-emerald-800', 'font-semibold');
+                if (dView && dView.classList) if (dView && dView.classList) if(dView&&dView.classList)dView.classList.remove('hidden');
+                if (pView && pView.classList) if (pView && pView.classList) if(pView&&pView.classList)pView.classList.add('hidden');
             }
         }
 
@@ -541,9 +576,9 @@
                 selectedDoctorForBooking = res.doctor;
                 currentBookingData = { city, department: dept, preferred_date: date };
 
-                document.getElementById('doctor-modal').classList.remove('hidden');
-                document.getElementById('random-doctor-info').innerHTML = `${res.message}<br><span class="font-medium text-emerald-700">${date}</span>`;
-                document.getElementById('modal-doctor-card').innerHTML = `
+                (function(){const el=document.getElementById('doctor-modal'); if(el && el.classList) el.classList.remove('hidden');})();
+                const __el=document.getElementById('random-doctor-info'); if(__el) __el.innerHTML = `${res.message}<br><span class="font-medium text-emerald-700">${date}</span>`;
+                const __el=document.getElementById('modal-doctor-card'); if(__el) __el.innerHTML = `
                     <div class="flex gap-4">
                         <div class="w-12 h-12 bg-emerald-200 rounded-2xl flex items-center justify-center"><i class="fa-solid fa-user-md text-2xl text-emerald-700"></i></div>
                         <div>
@@ -556,7 +591,7 @@
         }
 
         function closeDoctorModal() {
-            document.getElementById('doctor-modal').classList.add('hidden');
+            (function(){const el=document.getElementById('doctor-modal'); if(el && el.classList) el.classList.add('hidden');})();
             selectedDoctorForBooking = null;
             currentBookingData = null;
         }
@@ -654,13 +689,13 @@
         async function loadDoctorProfile() {
             try {
                 const p = await apiCall(`/doctor/profile/${currentUser.id}`);
-                document.getElementById('doc-department').value = p.department;
-                document.getElementById('max-patients').value = p.max_patients_per_day || 5;
+                const dd = document.getElementById('doc-department'); if (dd) dd.value = p.department;
+                const mp = document.getElementById('max-patients'); if (mp) mp.value = p.max_patients_per_day || 5;
                 setupFreeDaysCheckboxes(p.free_days || []);
             } catch (e) {
                 setupFreeDaysCheckboxes(['Monday', 'Wednesday']);
-                document.getElementById('doc-department').value = 'General Medicine';
-                document.getElementById('max-patients').value = 5;
+                const dd = document.getElementById('doc-department'); if (dd) dd.value = 'General Medicine';
+                const mp = document.getElementById('max-patients'); if (mp) mp.value = 5;
             }
         }
 
@@ -717,12 +752,18 @@
 
         function logout() {
             currentUser = null; currentRole = null;
-            document.getElementById('main-app').classList.add('hidden');
-            document.getElementById('auth-forms').classList.add('hidden');
-            document.getElementById('get-started').classList.remove('hidden');
-            document.getElementById('auth-section').classList.remove('hidden'); // show old auth if needed, but we hide it
-            document.getElementById('patient-bookings').innerHTML = '';
-            document.getElementById('doctor-bookings').innerHTML = '';
+            const main = document.getElementById('main-app');
+            const forms = document.getElementById('auth-forms');
+            const started = document.getElementById('get-started');
+            if (main && main.classList) main.classList.add('hidden');
+            if (forms && forms.classList) forms.classList.add('hidden');
+            if (started && started.classList) started.classList.remove('hidden');
+            const p = document.getElementById('patient-bookings');
+            const d = document.getElementById('doctor-bookings');
+            if (p) p.innerHTML = '';
+            if (d) d.innerHTML = '';
+            const nav = document.getElementById('nav-user-info');
+            if (nav) nav.innerHTML = '';
         }
 
         function initDate() {
@@ -741,9 +782,8 @@
             initDate();
         }
 
-        window.onload = () => {
-            loadInitialData();
-        };
-    </script>
+        window.onload = () => { try { loadInitialData(); } catch(e) { console.error('onload crash prevented', e); } };
+    
+</script>
 </body>
 </html>
